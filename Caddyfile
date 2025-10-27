@@ -1,4 +1,8 @@
-localhost:80 {
+{
+    admin off
+}
+
+http://localhost:8090 {
     header * {
         Access-Control-Allow-Origin "*"
     }

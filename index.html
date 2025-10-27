@@ -50,8 +50,38 @@
         map.setView([startLat, startLng], startZoom);
 
         async function getData() {
-            const response = await fetch("https://raw.githubusercontent.com/richardsondev/pse-outages/refs/heads/main/outages.json");
-            const mapData = await response.json();
+            const commitsResponse = await
+                fetch("https://api.github.com/repos/richardsondev/pse-outages/commits?path=outages.json&per_page=5");
+            const commits = await commitsResponse.json();
+
+            for (commit of commits) {
+                try {
+                    const dataResponse = await fetch("https://raw.githubusercontent.com/richardsondev/pse-outages/" +
+                        commit.sha + "/outages.json");
+                    const data = await dataResponse.json();
+                    if (data) {
+                        localStorage.setItem("mapData", JSON.stringify(data));
+                        return data;
+                    }
+                } catch (error) {
+                    console.log("Error fetching data for commit " + commit.sha + ": " + error);
+                }
+            }
+
+            console.log("No valid data found in recent commits. Falling back to cached data.");
+            let mapData = localStorage.getItem("mapData");
+            if (mapData) {
+                return mapData;
+            }
+            return null;
+        }
+
+        async function addDataToMap() {
+            const mapData = await getData();
+            if (!mapData) {
+                console.log("No map data available.");
+                return;
+            }
 
             let pointsOfInterest = [];
 
@@ -112,7 +142,7 @@
             }
         }
 
-        getData();
+        addDataToMap();
     </script>
 </body>
 </html>
