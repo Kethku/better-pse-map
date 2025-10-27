@@ -32,17 +32,28 @@
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
-        map.locate({setView: true, maxZoom: 16});
 
-        function onLocationError(e) {
-            map.setView([47.6740, -122.1215], 12)
-        }
+        map.on("moveend zoomend", () => {
+            const center = map.getCenter();
+            localStorage.setItem("mapView", JSON.stringify({
+                lat: center.lat,
+                lng: center.lng,
+                zoom: map.getZoom(),
+            }));
+        });
 
-        map.on('locationerror', onLocationError);
+        const savedView = JSON.parse(localStorage.getItem("mapView"));
+        const startLat = savedView?.lat ?? 47.6740;
+        const startLng = savedView?.lng ?? -122.1215;
+        const startZoom = savedView?.zoom ?? 13;
+
+        map.setView([startLat, startLng], startZoom);
 
         async function getData() {
             const response = await fetch("https://raw.githubusercontent.com/richardsondev/pse-outages/refs/heads/main/outages.json");
             const mapData = await response.json();
+
+            let pointsOfInterest = [];
 
             for (mapItem of mapData.PseMap) {
                 let status = "";
@@ -80,7 +91,8 @@
                 let polygon = L.polygon(coordinates, {color: colors[status] || "purple", opacity: 0.5, fillOpacity: 0.2}).addTo(map);
 
                 let poi = mapItem.DataProvider.PointOfInterest;
-                L.marker([poi.Latitude, poi.Longitude])
+                let poiCoordinate = [poi.Latitude, poi.Longitude];
+                L.marker(poiCoordinate)
                     .bindPopup(popupText)
                     .on("popupopen", () => {
                         polygon.setStyle({opacity: 1.0, fillOpacity: 0.75});
@@ -90,6 +102,13 @@
                         polygon.setStyle({opacity: 0.5, fillOpacity: 0.2});
                     })
                     .addTo(map);
+
+                pointsOfInterest.push(poiCoordinate);
+            }
+
+            const poiBounds = L.latLngBounds(pointsOfInterest);
+            if (!poiBounds.contains(map.getBounds())) {
+                map.fitBounds(poiBounds);
             }
         }
 
