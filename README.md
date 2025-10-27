@@ -1,6 +1,6 @@
  # A better PSE outage map
 
- The official Puget Sound Energy map sucks. Like a lot. Its very hard to use on mobile, constantly change zoom level randomly, and presents the data in an unhelpful way.
+ The official Puget Sound Energy map sucks. Like a lot. Its very hard to use on mobile, constantly changes zoom level randomly, and presents the data in an unhelpful way.
 
  [Here's a better one.](https://kaylees.dev/better-pse-map/)
 
