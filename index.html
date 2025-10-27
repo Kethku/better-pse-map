@@ -85,10 +85,10 @@
                     "Assessing damage": "orange",
                     "Crew assigned": "yellow",
                     "Repair crew onsite": "green",
-                    "": "blue",
+                    "": "gray",
                 }
 
-                let polygon = L.polygon(coordinates, {color: colors[status] || "purple", opacity: 0.5, fillOpacity: 0.2}).addTo(map);
+                let polygon = L.polygon(coordinates, {color: colors[status] || "blue", opacity: 0.5, fillOpacity: 0.2}).addTo(map);
 
                 let poi = mapItem.DataProvider.PointOfInterest;
                 let poiCoordinate = [poi.Latitude, poi.Longitude];
